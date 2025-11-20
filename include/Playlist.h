@@ -23,11 +23,18 @@ struct PlaylistNode {
     ~PlaylistNode() = default;
 };
 
-class Playlist {
+class Playlist {    
 private:
     PlaylistNode* head;
     std::string playlist_name;
     int track_count;
+
+     // YA: Helper function - delete all PlaylistNode objects (but NOT the AudioTrack objects)
+    void clear();
+
+    // YA Helper function - copy linked list structure from another playlist
+    // Creates new nodes that point to the same AudioTrack* as in 'other'
+    void copy_from(const Playlist& other);
 
 public:
     /**
@@ -38,7 +45,10 @@ public:
     /**
      * Destructor
      */
-    ~Playlist();
+     // YA - the rule of 3
+    ~Playlist();                                // destructor
+    Playlist(const Playlist& other);            // copy constructor
+    Playlist& operator=(const Playlist& other); // copy assignment
 
     /**
      * Add a track to the playlist
@@ -86,8 +96,5 @@ public:
      */
     std::vector<AudioTrack*> getTracks() const;
 
-};
-
-
-
+    };
 #endif // PLAYLIST_H

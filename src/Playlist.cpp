@@ -1,3 +1,4 @@
+
 #include "Playlist.h"
 #include "AudioTrack.h"
 #include <iostream>
@@ -12,7 +13,52 @@ Playlist::~Playlist() {
     #ifdef DEBUG
     std::cout << "Destroying playlist: " << playlist_name << std::endl;
     #endif
+    clear();
 }
+
+void Playlist::clear() { //YA helper function for clear the playList
+    PlaylistNode* current = head;
+    while (current) {
+        PlaylistNode* next = current->next;
+        delete current; // YA delete the node and not the track
+        current = next;
+    }
+
+    head = nullptr;
+    track_count = 0;
+}
+
+void Playlist::copy_from(const Playlist& other) { // YA helper function for the copy constructor
+    PlaylistNode* current_src = other.head;
+    PlaylistNode** tail = &head;// YA connection point between the lists, set the pointer on the head
+
+    while (current_src) {
+        *tail = new PlaylistNode(current_src->track);// YA take the next Node from other with his pointer and creat a new one in our list on the next place
+        tail = &((*tail)->next);// YA set the tail after the new Node we created
+        current_src = current_src->next;
+        ++track_count;
+    }
+}
+
+Playlist::Playlist(const Playlist& other)// YA copy constructor
+    : head(nullptr), playlist_name(other.playlist_name), track_count(0) {
+    copy_from(other); 
+}
+
+Playlist& Playlist::operator=(const Playlist& other) {// YA copy assignment operator
+    if (this == &other) {
+        return *this; // protected p=p 
+    }
+
+    clear();  
+
+    playlist_name = other.playlist_name; 
+    copy_from(other);
+
+    return *this;
+}
+
+
 
 void Playlist::add_track(AudioTrack* track) {
     if (!track) {
@@ -49,6 +95,8 @@ void Playlist::remove_track(const std::string& title) {
         } else {
             head = current->next;
         }
+
+        delete current;
 
         track_count--;
         std::cout << "Removed '" << title << "' from playlist" << std::endl;
