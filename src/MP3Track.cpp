@@ -36,13 +36,29 @@ void MP3Track::analyze_beatgrid() {
             << title << "\"\n";
   // TODO: Implement MP3-specific beat detection analysis
   // NOTE: Use exactly 2 spaces before each arrow (→) character
+  double beats_estimated = (duration_seconds / 60.0) * bpm;
+  double precision_factor = bitrate / 320.0;
+  std::cout << "  → Estimated beats: " << beats_estimated
+            << "  → Compression precision factor: " << precision_factor << "\n";
 }
 
 double MP3Track::get_quality_score() const {
   // TODO: Implement comprehensive quality scoring
   // NOTE: This method does NOT print anything
-
-  return 0.0;  // Replace with your implementation
+  double score = (bitrate / 320.0) * 100;
+  if (has_id3_tags) {
+    score += 5;
+  }
+  if (bitrate < 128) {
+    score -= 10;
+  }
+  if (score > 100) {
+    score = 100.0;
+  }
+  if (score < 0) {
+    score = 0.0;
+  }
+  return score;  // Replace with your implementation
 }
 
 PointerWrapper<AudioTrack> MP3Track::clone() const {

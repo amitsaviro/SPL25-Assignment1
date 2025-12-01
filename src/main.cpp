@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
               << std::endl;
 
     // Test each phase individually
-    // test_phase_1_memory_leaks();
+    test_phase_1_memory_leaks();
     test_phase_2_rule_of_5();
     // test_phase_3();
     // demonstrate_polymorphism();
