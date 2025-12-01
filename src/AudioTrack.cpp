@@ -99,7 +99,7 @@ AudioTrack::AudioTrack(AudioTrack&& other) noexcept
       waveform_size(other.waveform_size) {
 // TODO: Implement the move constructor
 #ifdef DEBUG
-  std::cout << "AudioTrack move constructor called for: " << other.title
+  std::cout << "AudioTrack move constructor called for: " << title
             << std::endl;
 #endif
   // YA
