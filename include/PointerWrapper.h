@@ -37,7 +37,10 @@ public:
      * Think about ownership and resource management.
      * Is the default destructor sufficient here?
      */
-    ~PointerWrapper() =default;
+    ~PointerWrapper(){
+        delete ptr;      //YA delete ptr
+        ptr = nullptr; 
+    }
 
     // ========== COPY OPERATIONS (DELETED) ==========
 
@@ -45,13 +48,13 @@ public:
      * Copy constructor is DELETED
      * Think about why this might be necessary for a pointer wrapper
      */
-    PointerWrapper(const PointerWrapper& other) = delete;
+    PointerWrapper(const PointerWrapper& other) = delete;//YA we want a unique ptr so we dont allow a copy
 
     /**
      * Copy assignment is DELETED
      * Consider what problems could arise if copying was allowed
      */
-    PointerWrapper& operator=(const PointerWrapper& other) = delete;
+    PointerWrapper& operator=(const PointerWrapper& other) = delete;//YA we want a unique ptr so we dont allow a copy
 
     // ========== MOVE OPERATIONS (STUDENTS IMPLEMENT) ==========
 
@@ -60,7 +63,12 @@ public:
      * HINT: How should ownership transfer from one wrapper to another?
      * What should happen to the source wrapper after the move?
      */
-    PointerWrapper(PointerWrapper&& other) noexcept {}
+    PointerWrapper(PointerWrapper&& other) noexcept
+    : ptr(other.ptr)//YA taking the ptr
+    {
+    other.ptr = nullptr;    //delete the old owner
+    }
+
 
     /**
      * TODO: Implement move assignment operator
@@ -68,8 +76,18 @@ public:
      * Don't forget about self-assignment!
      */
     PointerWrapper& operator=(PointerWrapper&& other) noexcept {
-        return *this;
+    if (this == &other) {
+        return *this;   //self protected
     }
+
+    delete ptr; //YA relese the current ptr if exist
+
+    ptr = other.ptr;// YA take the ptr
+    other.ptr = nullptr;
+
+    return *this;
+}
+
 
     // ========== ACCESS OPERATIONS ==========
 
@@ -79,17 +97,26 @@ public:
      * @throws std::runtime_error if ptr is null
      */
 
+     // YA *wrapper- (*wrapper).something
     T& operator*() const {
+        if (!ptr) {
+            throw std::runtime_error("Dereferencing null PointerWrapper");
+        }
         return *ptr;
-    };
+    }
+
 
     /**
      * TODO: Implement arrow operator
      * HINT: How do you access members of the wrapped object?
      * What safety checks should you perform?
      */
+    // YA wrapper->something, make the object behavior the same as pointer with ->
     T* operator->() const {
-        return nullptr;
+        if (!ptr) {
+            throw std::runtime_error("Accessing member through null PointerWrapper");
+        }
+        return ptr;
     }
 
     /**
