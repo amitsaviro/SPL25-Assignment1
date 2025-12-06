@@ -161,7 +161,7 @@ class PointerWrapper {
     }
   }
 
-  // YA - we are here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
   // ========== UTILITY FUNCTIONS ==========
 
@@ -171,13 +171,16 @@ class PointerWrapper {
    * Why might the explicit keyword be important here?
    */
   explicit operator bool() const {
-    return false;  // placeholder
-  }
+    return ptr != nullptr; // YA when the prt isnt null return true
+}
+
 
   /**
    * Swap two PointerWrapper objects
    * This is implemented for you as a reference
    */
+
+
   void swap(PointerWrapper& other) noexcept { std::swap(ptr, other.ptr); }
 };
 
@@ -203,6 +206,7 @@ void swap(PointerWrapper<T>& lhs, PointerWrapper<T>& rhs) noexcept {
   // TODO: Implement global swap function
   // HINT: You can use the member swap function
   // your code here...
+   lhs.swap(rhs); // YA we want that the swap will call to swap of this class and not from std so the compiler will take this one
 }
 
 #endif  // POINTERWRAPPER_H
