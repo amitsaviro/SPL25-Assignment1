@@ -141,8 +141,8 @@ class PointerWrapper {
    * HINT: What does "release" mean in terms of ownership?
    * Should the wrapper still own the pointer after calling release()?
    */
-  T* release() {  // YA - also returns the pointer but now changes ownership -
-                  // means we have to delete manually
+  T* release() {    // YA - also returns the pointer but now changes ownership -
+                    // means we have to delete manually
     T* temp = ptr;  // YA - saves the ptr
     ptr = nullptr;  // YA - not the owner any more
     return temp;    // YA - returns the ptr
@@ -161,8 +161,6 @@ class PointerWrapper {
     }
   }
 
-
-
   // ========== UTILITY FUNCTIONS ==========
 
   /**
@@ -171,15 +169,13 @@ class PointerWrapper {
    * Why might the explicit keyword be important here?
    */
   explicit operator bool() const {
-    return ptr != nullptr; // YA when the prt isnt null return true
-}
-
+    return ptr != nullptr;  // YA when the ptr isnt null return true
+  }
 
   /**
    * Swap two PointerWrapper objects
    * This is implemented for you as a reference
    */
-
 
   void swap(PointerWrapper& other) noexcept { std::swap(ptr, other.ptr); }
 };
@@ -206,7 +202,8 @@ void swap(PointerWrapper<T>& lhs, PointerWrapper<T>& rhs) noexcept {
   // TODO: Implement global swap function
   // HINT: You can use the member swap function
   // your code here...
-   lhs.swap(rhs); // YA we want that the swap will call to swap of this class and not from std so the compiler will take this one
+  lhs.swap(rhs);  // YA we want that the swap will call to swap of this class
+                  // and not from std so the compiler will take this one
 }
 
 #endif  // POINTERWRAPPER_H
