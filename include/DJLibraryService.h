@@ -15,6 +15,7 @@ class DJLibraryService {
 public:
     DJLibraryService(const Playlist& playlist);
     DJLibraryService() = default;
+    ~DJLibraryService();//YA destructor for deleting
 
     /**
      * @brief Build the track library from parsed config data

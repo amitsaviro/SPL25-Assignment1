@@ -2,6 +2,7 @@
 #include "SessionFileParser.h"
 #include "MP3Track.h"
 #include "WAVTrack.h"
+#include "PointerWrapper.h"
 #include <iostream>
 #include <memory>
 #include <filesystem>
@@ -9,14 +10,72 @@
 
 DJLibraryService::DJLibraryService(const Playlist& playlist) 
     : playlist(playlist) {}
+
+DJLibraryService::~DJLibraryService() {
+    // YA-this is the owner so we must delete
+    for (AudioTrack* track : library) {
+        delete track;  //YA relese the memory
+    }
+    library.clear(); // YA clean the vector
+}
 /**
  * @brief Load a playlist from track indices referencing the library
  * @param library_tracks Vector of track info from config
  */
 void DJLibraryService::buildLibrary(const std::vector<SessionConfig::TrackInfo>& library_tracks) {
-    //Todo: Implement buildLibrary method
-    std::cout << "TODO: Implement DJLibraryService::buildLibrary method\n"<< library_tracks.size() << " tracks to be loaded into library.\n";
+    std::cout << "[Library] Building library with "
+              << library_tracks.size() << " tracks...\n";//YA how many tracks
+
+    // YA clean the library for making sure there is no duplication
+    for (AudioTrack* t : library) {
+        delete t; 
+    }
+    library.clear();
+
+    // YA check the trackInfo
+    for (const auto& info : library_tracks) {
+        // YA copy the artists to a new vector
+        std::vector<std::string> artists = info.artists;
+
+        AudioTrack* track = nullptr;   //YA pointer to the track we will creat
+
+        if (info.type == "MP3") {
+            track = new MP3Track(
+                info.title,
+                artists,//YA vector string of artists
+                info.duration_seconds,
+                info.bpm,
+                info.extra_param1    // bitrate
+            );
+            std::cout << "MP3Track created: " << info.extra_param1 << " kbps\n";
+        }
+        else if (info.type == "WAV") {
+            track = new WAVTrack(
+                info.title,
+                artists,//YA vector string of artists
+                info.duration_seconds,
+                info.bpm,
+                info.extra_param1,   // sample_rate
+                info.extra_param2    // bit_depth
+            );
+             std::cout << "WAVTrack created: "
+                      << info.extra_param1 << "Hz/"
+                      << info.extra_param2 << "bit\n";
+        }
+        else {
+            std::cerr << "[ERROR] Unknown track type: " << info.type << "\n";
+            continue; // YA didnt add nothing
+        }
+
+        // YA library is the ownership
+        library.push_back(track);    
+        playlist.add_track(track);//YA playlist only have a pointer it isnt the owner
+    }
+
+    std::cout << "[Library] Build complete. Total tracks loaded: "
+              << library.size() << "\n";
 }
+
 
 /**
  * @brief Display the current state of the DJ library playlist
@@ -42,7 +101,7 @@ void DJLibraryService::displayLibrary() const {
  * 
  * @return Playlist& 
  */
-Playlist& DJLibraryService::getPlaylist() {
+Playlist& DJLibraryService::getPlaylist() {//YA we dont need to change
     // Your implementation here
     return playlist;
 }
@@ -53,22 +112,70 @@ Playlist& DJLibraryService::getPlaylist() {
  * HINT: Leverage Playlist's find_track method
  */
 AudioTrack* DJLibraryService::findTrack(const std::string& track_title) {
-    // Your implementation here
-    return nullptr; // Placeholder
+    return playlist.find_track(track_title);//YA using the playlist method-find track
 }
 
-void DJLibraryService::loadPlaylistFromIndices(const std::string& playlist_name, 
-                                               const std::vector<int>& track_indices) {
-    // Your implementation here
-    // For now, add a placeholder to fix the linker error
-    (void)playlist_name;  // Suppress unused parameter warning
-    (void)track_indices;  // Suppress unused parameter warning
+void DJLibraryService::loadPlaylistFromIndices(const std::string& playlist_name, const std::vector<int>& track_indices)
+{
+    std::cout << "[Library] Loading playlist from indices: " 
+              << playlist_name << "\n";
+
+     playlist = Playlist(playlist_name);//YA replace the old playlist
+    int added_count = 0;//YA counting how many tracks added
+
+    for (int idx : track_indices) {
+        int zero_based = idx - 1;//YA making idx from 0
+
+        if (zero_based < 0 || zero_based >= (int)library.size()) {//YA idx is under 0 or more than the library size-error
+            std::cerr << "[ERROR] Invalid track index in playlist: " << idx << "\n";
+            continue;
+        }
+
+        AudioTrack* original = library[zero_based];//YA get the original track from the library
+        //YA polymorphic clone for protected and adding
+        PointerWrapper<AudioTrack> clone(original->clone());
+        if (!clone) {
+            std::cerr << "[ERROR] Failed to clone track at index " << idx
+                      << " for playlist '" << playlist_name << "'\n";
+            continue;
+        }
+
+        //YA make the clone
+        clone->load();
+        clone->analyze_beatgrid();
+
+        // resele the ownership from the wrapper to the playlist
+        AudioTrack* prepared = clone.release();
+        playlist.add_track(prepared);
+
+        std::cout << "Added '" << prepared->get_title()
+                  << "' to playlist '" << playlist_name << "'\n";
+
+        ++added_count;
+    }
+
+    std::cout << "[INFO] Playlist loaded: " << playlist_name
+              << " (" << added_count << " tracks)\n";
 }
+
 /**
  * TODO: Implement getTrackTitles method
  * @return Vector of track titles in the playlist
  */
 std::vector<std::string> DJLibraryService::getTrackTitles() const {
-    // Your implementation here
-    return std::vector<std::string>(); // Placeholder
+    std::vector<std::string> titles; //YA vector for the titles
+
+    std::vector<AudioTrack*> tracks = playlist.getTracks();  // YA take all the *AudioTrack from the playlist
+
+    titles.reserve(tracks.size()); // YA set the place before
+
+    for (AudioTrack* t : tracks) {  // YA for every track
+        if (t) {   // YA making sure it isnt null
+            titles.push_back(t->get_title());// YA pushing the title to the vector
+        }
+    }
+
+    return titles; // YA return the titles vector
 }
+
+
