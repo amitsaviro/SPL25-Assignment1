@@ -22,21 +22,20 @@ bool LRUCache::put(PointerWrapper<AudioTrack> track) {
   if (!track.get()) return false;  // YA - if ptrWrapper empty do nothing
 
   size_t existing = findSlot(
-      track->get_title());  // YA - returns the index of the track or max_size
+      track->get_title());  // YA - returns the index of the track or max_size, searching by title
   if (existing != max_size) {  // if we got an index than track is already there
     slots[existing].access(++access_counter);  // updates Recently Used
     return false;
   }
 
   size_t empty = findEmptySlot();  // if not in the slot already
-  bool eviction = false;
+  bool eviction = false; //YA bool flag to make sure it changed to True after the evictLRU
 
-  if (empty ==
-      max_size) {  // YA - if all the slots are taken needs to free the RLU
-    empty = findLRUSlot();
-    eviction = evictLRU();  // removes the RLU and returns true
+  if (empty == max_size) {  // YA - if all the slots are taken needs to free the LRU
+    empty = findLRUSlot(); //YA find the LRU
+    eviction = evictLRU();  // removes the LRU and returns true
   }
-  // YA - empty = empty slot or the one we removed the RLU from
+  // YA - empty = empty slot or the one we removed the LRU from
   slots[empty].store(std::move(track),
                      ++access_counter);  // YA - stores the track and gives the
                                          // ownership to the slot (move track),
@@ -47,8 +46,8 @@ bool LRUCache::put(PointerWrapper<AudioTrack> track) {
 
 bool LRUCache::evictLRU() {
   size_t lru = findLRUSlot();
-  if (lru == max_size || !slots[lru].isOccupied()) return false;
-  slots[lru].clear();
+  if (lru == max_size || !slots[lru].isOccupied()) return false;//YA if it didnt find-return false
+  slots[lru].clear();//YA if yes-clear it and return true
   return true;
 }
 
@@ -83,7 +82,7 @@ size_t LRUCache::findSlot(const std::string& track_id) const {
     if (slots[i].isOccupied() && slots[i].getTrack()->get_title() == track_id)
       return i;
   }
-  return max_size;
+  return max_size;//YA here is the return max_size if we didnt find
 }
 
 /**

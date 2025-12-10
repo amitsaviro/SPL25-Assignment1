@@ -112,6 +112,7 @@ class AudioTrack {
   // ========== ACCESSOR FUNCTIONS ==========
   std::string get_title() const { return title; }
   int get_bpm() const { return bpm; }
+  void set_bpm(int new_bpm) { bpm = new_bpm; }  // YA phase 4- adding setter for AVG
   int get_duration() const { return duration_seconds; }
   std::vector<std::string> get_artists() const { return artists; }
 };
