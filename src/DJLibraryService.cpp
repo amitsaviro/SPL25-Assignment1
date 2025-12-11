@@ -115,48 +115,40 @@ AudioTrack* DJLibraryService::findTrack(const std::string& track_title) {
     return playlist.find_track(track_title);//YA using the playlist method-find track
 }
 
-void DJLibraryService::loadPlaylistFromIndices(const std::string& playlist_name, const std::vector<int>& track_indices)
+void DJLibraryService::loadPlaylistFromIndices(const std::string& playlist_name,
+                                               const std::vector<int>& track_indices)
 {
-    std::cout << "[Library] Loading playlist from indices: " 
+    std::cout << "[Library] Loading playlist from indices: "
               << playlist_name << "\n";
 
-     playlist = Playlist(playlist_name);//YA replace the old playlist
-    int added_count = 0;//YA counting how many tracks added
+    // YA new playlist
+    playlist = Playlist(playlist_name);
+
+    int added_count = 0;
 
     for (int idx : track_indices) {
-        int zero_based = idx - 1;//YA making idx from 0
+        int zero_based = idx - 1; // YA set the idx start from 0
 
-        if (zero_based < 0 || zero_based >= (int)library.size()) {//YA idx is under 0 or more than the library size-error
-            std::cerr << "[ERROR] Invalid track index in playlist: " << idx << "\n";
+        if (zero_based < 0 || zero_based >= static_cast<int>(library.size())) {//YA make sure it is valid idx
+            std::cerr << "[WARNING] Invalid track index: " << idx << "\n";
             continue;
         }
 
-        AudioTrack* original = library[zero_based];//YA get the original track from the library
-        //YA polymorphic clone for protected and adding
-        PointerWrapper<AudioTrack> clone(original->clone());
-        if (!clone) {
-            std::cerr << "[ERROR] Failed to clone track at index " << idx
-                      << " for playlist '" << playlist_name << "'\n";
+        AudioTrack* track = library[zero_based];//YA take the pointer from the library by idx
+        if (!track) {
+            std::cerr << "[ERROR] Null track pointer at index: " << idx << "\n";
             continue;
         }
 
-        //YA make the clone
-        clone->load();
-        clone->analyze_beatgrid();
-
-        // resele the ownership from the wrapper to the playlist
-        AudioTrack* prepared = clone.release();
-        playlist.add_track(prepared);
-
-        std::cout << "Added '" << prepared->get_title()
-                  << "' to playlist '" << playlist_name << "'\n";
-
+        // YA adding exist pointer
+        playlist.add_track(track);
         ++added_count;
     }
 
     std::cout << "[INFO] Playlist loaded: " << playlist_name
               << " (" << added_count << " tracks)\n";
 }
+
 
 /**
  * TODO: Implement getTrackTitles method
