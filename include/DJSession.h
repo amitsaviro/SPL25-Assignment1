@@ -66,6 +66,11 @@ public:
      */
     ~DJSession();
 
+    //YA display copy
+    DJSession(const DJSession&) = delete;
+    DJSession& operator=(const DJSession&) = delete;
+
+
     // ========== ORCHESTRATION METHODS ==========
 
 

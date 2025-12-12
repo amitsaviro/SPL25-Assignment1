@@ -152,5 +152,8 @@ void MixingEngineService::sync_bpm(const PointerWrapper<AudioTrack>& track) cons
     int avg_bpm = (active_bpm + incoming_bpm) / 2; //YA AVG calc
 
     track->set_bpm(avg_bpm);//YA set the new BPM
+    std::cout << "[Sync BPM] Syncing BPM from " << incoming_bpm
+          << " to " << avg_bpm << "\n";//information msg
+
 }
 

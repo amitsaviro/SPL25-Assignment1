@@ -8,8 +8,11 @@
 #include <filesystem>
 
 
-DJLibraryService::DJLibraryService(const Playlist& playlist) 
-    : playlist(playlist) {}
+DJLibraryService::DJLibraryService()
+    : playlist(), library() {}//YA empty vector
+
+DJLibraryService::DJLibraryService(const Playlist& playlist)//YA copt ctor
+    : playlist(playlist), library() {}//YA empty vector
 
 DJLibraryService::~DJLibraryService() {
     // YA-this is the owner so we must delete
@@ -47,7 +50,6 @@ void DJLibraryService::buildLibrary(const std::vector<SessionConfig::TrackInfo>&
                 info.bpm,
                 info.extra_param1    // bitrate
             );
-            std::cout << "MP3Track created: " << info.extra_param1 << " kbps\n";
         }
         else if (info.type == "WAV") {
             track = new WAVTrack(
@@ -58,9 +60,7 @@ void DJLibraryService::buildLibrary(const std::vector<SessionConfig::TrackInfo>&
                 info.extra_param1,   // sample_rate
                 info.extra_param2    // bit_depth
             );
-             std::cout << "WAVTrack created: "
-                      << info.extra_param1 << "Hz/"
-                      << info.extra_param2 << "bit\n";
+
         }
         else {
             std::cerr << "[ERROR] Unknown track type: " << info.type << "\n";
@@ -69,7 +69,6 @@ void DJLibraryService::buildLibrary(const std::vector<SessionConfig::TrackInfo>&
 
         // YA library is the ownership
         library.push_back(track);    
-        playlist.add_track(track);//YA playlist only have a pointer it isnt the owner
     }
 
     std::cout << "[Library] Build complete. Total tracks loaded: "
@@ -126,25 +125,24 @@ void DJLibraryService::loadPlaylistFromIndices(const std::string& playlist_name,
 
     int added_count = 0;
 
-    for (int idx : track_indices) {
-        int zero_based = idx - 1; // YA set the idx start from 0
+    for (auto it = track_indices.rbegin(); it != track_indices.rend(); ++it) {//YA loop by idx
+    int idx = *it;            
+    int zero_based = idx - 1;
 
-        if (zero_based < 0 || zero_based >= static_cast<int>(library.size())) {//YA make sure it is valid idx
-            std::cerr << "[WARNING] Invalid track index: " << idx << "\n";
-            continue;
-        }
-
-        AudioTrack* track = library[zero_based];//YA take the pointer from the library by idx
-        if (!track) {
-            std::cerr << "[ERROR] Null track pointer at index: " << idx << "\n";
-            continue;
-        }
-
-        // YA adding exist pointer
-        playlist.add_track(track);
-        ++added_count;
+    if (zero_based < 0 || zero_based >= (int)library.size()) {
+        std::cerr << "[WARNING] Invalid track index: " << idx << "\n";
+        continue;
     }
 
+    AudioTrack* track = library[zero_based];
+    if (!track) {
+        std::cerr << "[ERROR] Null track pointer at index: " << idx << "\n";
+        continue;
+    }
+
+    playlist.add_track(track);
+    ++added_count;
+}
     std::cout << "[INFO] Playlist loaded: " << playlist_name
               << " (" << added_count << " tracks)\n";
 }

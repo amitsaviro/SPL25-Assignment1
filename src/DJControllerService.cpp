@@ -14,9 +14,13 @@ DJControllerService::DJControllerService(size_t cache_size)
 int DJControllerService::loadTrackToCache(AudioTrack& track) {
   // YA - Hit case
   if (cache.contains(track.get_title())) {
+    std::cout << "[Cache HIT] " << track.get_title()
+              << " found in cache. Refreshing MRU state.\n";
     cache.get(track.get_title());  // updates RU
     return 1;                      // HIT
   }
+  std::cout << "[Cache MISS] Cloning track into cache: "
+            << track.get_title() << "\n";
 
   // polymorphic clone
   PointerWrapper<AudioTrack> clone(track.clone());
@@ -33,6 +37,8 @@ int DJControllerService::loadTrackToCache(AudioTrack& track) {
   // YA - wrapping clone and inserting to cache using put which we wrote before
   // (removes Least Recently Used)
   bool eviction = cache.put(std::move(clone));
+  std::cout << "[Cache INSERT] Added '" << track.get_title()
+            << "' to cache.\n";
 
   if (eviction) {
     return -1;  // YA - Miss with eviction

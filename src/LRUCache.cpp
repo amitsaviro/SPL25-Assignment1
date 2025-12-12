@@ -65,6 +65,7 @@ void LRUCache::clear() {
 }
 
 void LRUCache::displayStatus() const {
+  std::cout << "\n=== Cache Status ===\n"; //YA like the output file
   std::cout << "[LRUCache] Status: " << size() << "/" << max_size
             << " slots used\n";
   for (size_t i = 0; i < max_size; ++i) {
@@ -75,6 +76,7 @@ void LRUCache::displayStatus() const {
       std::cout << "  Slot " << i << ": [EMPTY]\n";
     }
   }
+  std::cout << "====================\n";//YA like the output file
 }
 
 size_t LRUCache::findSlot(const std::string& track_id) const {

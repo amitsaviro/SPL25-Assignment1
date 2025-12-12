@@ -8,10 +8,20 @@
 // ========== CONSTRUCTORS & RULE OF 5 ==========
 
 
-DJSession::DJSession(const std::string& name, bool play_all)
-    : session_name(name), play_all(play_all) {
+DJSession::DJSession(const std::string& name, bool play_all)//YA ctor
+    : session_name(name),
+      library_service(),
+      controller_service(8), //YA set default for initialize
+      mixing_service(),
+      config_manager(),
+      session_config(),
+      track_titles(),
+      play_all(play_all),
+      stats()
+{
     std::cout << "DJ Session System initialized: " << session_name << std::endl;
 }
+
 
 
 DJSession::~DJSession() {
@@ -227,9 +237,6 @@ void DJSession::simulate_dj_performance() {
 
             // YA summery of this playlist
             print_session_summary();
-
-            // YA set all the stats to be empty for the next playlist
-            stats = SessionStats{};
         }
 
         std::cout << "\n[System] All playlists processed.\n";
@@ -276,7 +283,6 @@ void DJSession::simulate_dj_performance() {
             }
 
             print_session_summary();// YA summery of this playlist
-            stats = SessionStats{}; // YA set all the stats to be empty for the next playlist
         }
     }
 }

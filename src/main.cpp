@@ -146,50 +146,6 @@ void test_phase_3() {
               << std::endl;
   }
 }
-//YA OUR TEST
-void test_phase_4_manual() {
-    std::cout << "\n===== MANUAL PHASE 4 TEST =====\n";
-
-    DJControllerService controller(2);   
-    MixingEngineService mixer;
-
-    MP3Track t1("Track1", {"A"}, 200, 120, 256);
-    MP3Track t2("Track2", {"B"}, 210, 122, 256);
-    MP3Track t3("Track3", {"C"}, 220, 130, 320);
-
-    std::cout << "\n-- Load Track1 to cache --\n";
-    std::cout << "Result: " << controller.loadTrackToCache(t1) << "\n";
-    controller.displayCacheStatus();
-
-    std::cout << "\n-- Load Track2 to cache --\n";
-    std::cout << "Result: " << controller.loadTrackToCache(t2) << "\n";
-    controller.displayCacheStatus();
-
-    std::cout << "\n-- Load Track1 again (expect HIT) --\n";
-    std::cout << "Result: " << controller.loadTrackToCache(t1) << "\n";
-    controller.displayCacheStatus();
-
-    std::cout << "\n-- Load Track3 (expect eviction) --\n";
-    std::cout << "Result: " << controller.loadTrackToCache(t3) << "\n";
-    controller.displayCacheStatus();
-
-    std::cout << "\n-- Load Track1 from cache to deck --\n";
-    AudioTrack* c1 = controller.getTrackFromCache("Track1");
-    if (c1) {
-        mixer.loadTrackToDeck(*c1);
-        mixer.displayDeckStatus();
-    }
-
-    std::cout << "\n-- Load Track3 from cache to deck --\n";
-    AudioTrack* c3 = controller.getTrackFromCache("Track3");
-    if (c3) {
-        mixer.loadTrackToDeck(*c3);
-        mixer.displayDeckStatus();
-    }
-
-    std::cout << "\n===== END MANUAL TEST =====\n";
-}
-
 
 void demonstrate_polymorphism() {
   std::cout << "\n======== POLYMORPHISM DEMONSTRATION ========" << std::endl;
@@ -226,7 +182,7 @@ int main(int argc, char* argv[]) {
    * - If "-A" is provided as the second argument, enable play_all mode
    */
   bool run_software = true;
-  bool play_all = false;
+  bool play_all = true;//YA for checking
   if (argc > 1 && std::string(argv[1]) == "-I") {
     run_software = true;
   }
@@ -264,6 +220,5 @@ int main(int argc, char* argv[]) {
               << std::endl;
   }
 
-  test_phase_4_manual();// YA our test
   return 0;
 }

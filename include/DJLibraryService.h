@@ -13,8 +13,8 @@
 // - Build playlists from track indices referencing the library
 class DJLibraryService {
 public:
-    DJLibraryService(const Playlist& playlist);
-    DJLibraryService() = default;
+    DJLibraryService();           
+    explicit DJLibraryService(const Playlist& playlist);//YA preventing auto copy
     ~DJLibraryService();//YA destructor for deleting
 
     /**
