@@ -21,18 +21,21 @@ AudioTrack* LRUCache::get(const std::string& track_id) {
 bool LRUCache::put(PointerWrapper<AudioTrack> track) {
   if (!track.get()) return false;  // YA - if ptrWrapper empty do nothing
 
-  size_t existing = findSlot(
-      track->get_title());  // YA - returns the index of the track or max_size, searching by title
+  size_t existing =
+      findSlot(track->get_title());  // YA - returns the index of the track or
+                                     // max_size, searching by title
   if (existing != max_size) {  // if we got an index than track is already there
     slots[existing].access(++access_counter);  // updates Recently Used
     return false;
   }
 
   size_t empty = findEmptySlot();  // if not in the slot already
-  bool eviction = false; //YA bool flag to make sure it changed to True after the evictLRU
+  bool eviction =
+      false;  // YA bool flag to make sure it changed to True after the evictLRU
 
-  if (empty == max_size) {  // YA - if all the slots are taken needs to free the LRU
-    empty = findLRUSlot(); //YA find the LRU
+  if (empty ==
+      max_size) {  // YA - if all the slots are taken needs to free the LRU
+    empty = findLRUSlot();  // YA find the LRU
     eviction = evictLRU();  // removes the LRU and returns true
   }
   // YA - empty = empty slot or the one we removed the LRU from
@@ -46,8 +49,9 @@ bool LRUCache::put(PointerWrapper<AudioTrack> track) {
 
 bool LRUCache::evictLRU() {
   size_t lru = findLRUSlot();
-  if (lru == max_size || !slots[lru].isOccupied()) return false;//YA if it didnt find-return false
-  slots[lru].clear();//YA if yes-clear it and return true
+  if (lru == max_size || !slots[lru].isOccupied())
+    return false;      // YA if it didnt find-return false
+  slots[lru].clear();  // YA if yes-clear it and return true
   return true;
 }
 
@@ -65,7 +69,6 @@ void LRUCache::clear() {
 }
 
 void LRUCache::displayStatus() const {
-  std::cout << "\n=== Cache Status ===\n"; //YA like the output file
   std::cout << "[LRUCache] Status: " << size() << "/" << max_size
             << " slots used\n";
   for (size_t i = 0; i < max_size; ++i) {
@@ -76,7 +79,6 @@ void LRUCache::displayStatus() const {
       std::cout << "  Slot " << i << ": [EMPTY]\n";
     }
   }
-  std::cout << "====================\n";//YA like the output file
 }
 
 size_t LRUCache::findSlot(const std::string& track_id) const {
@@ -84,7 +86,7 @@ size_t LRUCache::findSlot(const std::string& track_id) const {
     if (slots[i].isOccupied() && slots[i].getTrack()->get_title() == track_id)
       return i;
   }
-  return max_size;//YA here is the return max_size if we didnt find
+  return max_size;  // YA here is the return max_size if we didnt find
 }
 
 /**

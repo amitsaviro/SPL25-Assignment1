@@ -14,13 +14,12 @@ DJControllerService::DJControllerService(size_t cache_size)
 int DJControllerService::loadTrackToCache(AudioTrack& track) {
   // YA - Hit case
   if (cache.contains(track.get_title())) {
-    std::cout << "[Cache HIT] " << track.get_title()
+    AudioTrack* cached_track = cache.get(track.get_title());  // updates MRU
+    std::cout << "[Cache HIT] " << cached_track->get_title()
               << " found in cache. Refreshing MRU state.\n";
-    cache.get(track.get_title());  // updates RU
-    return 1;                      // HIT
+    displayCacheStatus();  // prints the === Cache Status === block
+    return 1;              // HIT
   }
-  std::cout << "[Cache MISS] Cloning track into cache: "
-            << track.get_title() << "\n";
 
   // polymorphic clone
   PointerWrapper<AudioTrack> clone(track.clone());
@@ -30,6 +29,10 @@ int DJControllerService::loadTrackToCache(AudioTrack& track) {
     return 0;
   }
 
+  // PRINT Cache MISS before loading
+  std::cout << "[Cache MISS] Cloning track into cache: " << track.get_title()
+            << "\n";
+
   // YA - simulates loading and beatgrid - what we did in phase 2!
   clone->load();
   clone->analyze_beatgrid();
@@ -37,8 +40,10 @@ int DJControllerService::loadTrackToCache(AudioTrack& track) {
   // YA - wrapping clone and inserting to cache using put which we wrote before
   // (removes Least Recently Used)
   bool eviction = cache.put(std::move(clone));
-  std::cout << "[Cache INSERT] Added '" << track.get_title()
-            << "' to cache.\n";
+
+  std::cout << "[Cache INSERT] Added '" << track.get_title() << "' to cache.\n";
+  // Display cache status after insertion
+  displayCacheStatus();
 
   if (eviction) {
     return -1;  // YA - Miss with eviction
@@ -66,6 +71,6 @@ AudioTrack* DJControllerService::getTrackFromCache(
   if (!cache.contains(track_title)) {
     return nullptr;  // if not in cache
   }
-  // YA - returns raw pointer to track - doesn't change ownership 
+  // YA - returns raw pointer to track
   return cache.get(track_title);
 }

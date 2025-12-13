@@ -62,5 +62,5 @@ double MP3Track::get_quality_score() const {
 }
 
 PointerWrapper<AudioTrack> MP3Track::clone() const {
-    return PointerWrapper<AudioTrack>(new MP3Track(*this));
+  return PointerWrapper<AudioTrack>(new MP3Track(*this));
 }
